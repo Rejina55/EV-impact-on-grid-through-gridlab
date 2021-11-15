@@ -1,0 +1,374 @@
+// Exercise 4.1.1
+
+#set profiler=1
+#set threadcount=1;
+#set randomseed=1;
+#set relax_naming_rules=1;
+#define stylesheet=http://gridlab-d.svn.sourceforge.net/viewvc/gridlab-d/trunk/core/gridlabd-2_0
+
+clock {
+	//timestamp '2000-01-01 0:00:00';
+	timezone EST+5EDT;
+	starttime '2009-08-08 04:30:00';
+	stoptime '2009-08-09 04:30:00';
+};
+
+module powerflow {
+	solver_method FBS;
+	default_maximum_voltage_error 1e-9;
+	line_limits FALSE;
+}
+
+module climate;
+module tape;
+module residential {
+	implicit_enduses NONE;
+	ANSI_voltage_check FALSE;
+};
+
+object climate {
+    name "rej";
+	tmyfile "F:/GridLAB-D/climate data/WA-Seattle-24233.tmy2";
+	interpolate LINEAR;
+	};
+
+schedule ZIP1base_power {
+	00-29  00   *   *  *   1.686360
+	30-59  00   *   *  *   1.616535
+	00-29  01   *   *  *   1.593260
+	30-59  01   *   *  *   1.553267
+	00-29  02   *   *  *   1.539935
+	30-59  02   *   *  *   1.523217
+	00-29  03   *   *  *   1.517644
+	30-59  03   *   *  *   1.526276
+	00-29  04   *   *  *   1.529154
+	30-59  04   *   *  *   1.579583
+	00-29  05   *   *  *   1.596393
+	30-59  05   *   *  *   1.731125
+	00-29  06   *   *  *   1.776036
+	30-59  06   *   *  *   1.971087
+	00-29  07   *   *  *   2.036104
+	30-59  07   *   *  *   2.123794
+	00-29  08   *   *  *   2.153025
+	30-59  08   *   *  *   2.120079
+	00-29  09   *   *  *   2.109097
+	30-59  09   *   *  *   2.081561
+	00-29  10   *   *  *   2.072382
+	30-59  10   *   *  *   2.056046
+	00-29  11   *   *  *   2.050600
+	30-59  11   *   *  *   2.028199
+	00-29  12   *   *  *   2.020733
+	30-59  12   *   *  *   2.011171
+	00-29  13   *   *  *   2.007984
+	30-59  13   *   *  *   2.000226
+	00-29  14   *   *  *   1.997640
+	30-59  14   *   *  *   1.997694
+	00-29  15   *   *  *   1.997713
+	30-59  15   *   *  *   2.029784
+	00-29  16   *   *  *   2.040474
+	30-59  16   *   *  *   2.157669
+	00-29  17   *   *  *   2.196733
+	30-59  17   *   *  *   2.262461
+	00-29  18   *   *  *   2.284370
+	30-59  18   *   *  *   2.273333
+	00-29  19   *   *  *   2.269654
+	30-59  19   *   *  *   2.239386
+	00-29  20   *   *  *   2.229297
+	30-59  20   *   *  *   2.178758
+	00-29  21   *   *  *   2.161912
+	30-59  21   *   *  *   2.064059
+	00-29  22   *   *  *   2.031441
+	30-59  22   *   *  *   1.897692
+	00-29  23   *   *  *   1.853109
+	30-59  23   *   *  *   1.728047
+}
+
+#define stylesheet=http://gridlab-d.svn.sourceforge.net/viewvc/gridlab-d/trunk/core/gridlabd-2_0
+object overhead_line_conductor {
+	name overhead_line_conductor100;
+	geometric_mean_radius 0.0244;
+	resistance 0.306;
+}
+
+object overhead_line_conductor {
+	name overhead_line_conductor101;
+	geometric_mean_radius 0.00814;
+	resistance 0.592;
+}
+
+object line_spacing {
+	name line_spacing200;
+	distance_AB 2.5;
+	distance_BC 4.5;
+	distance_AC 7.0;
+	distance_AN 5.656854;
+	distance_BN 4.272002;
+	distance_CN 5.0;
+}
+
+object line_configuration {
+	name line_configuration300;
+	conductor_A overhead_line_conductor100;
+	conductor_B overhead_line_conductor100;
+	conductor_C overhead_line_conductor100;
+	conductor_N overhead_line_conductor101;
+	spacing line_spacing200;
+}
+
+object transformer_configuration {
+	name transformer_configuration400;
+	connect_type 1;
+	power_rating 6000;
+	powerA_rating 2000;
+	powerB_rating 2000;
+	powerC_rating 2000;
+	primary_voltage 12470;
+	secondary_voltage 4160;
+	resistance 0.01;
+	reactance 0.06;
+}
+
+object node {
+	name node1;
+	bustype SWING;
+	phases "ABCN";
+	voltage_A +7199.558+0.000j;
+	voltage_B -3599.779-6235.000j;
+	voltage_C -3599.779+6235.000j;
+	nominal_voltage 7200;
+}
+
+object overhead_line {
+	phases "ABCN";
+	from node1;
+	to node2;
+	length 2000;
+	configuration line_configuration300;
+}
+
+object node {
+	name node2;
+	phases "ABCN";
+	voltage_A +7199.558+0.000j;
+	voltage_B -3599.779-6235.000j;
+	voltage_C -3599.779+6235.000j;
+	nominal_voltage 7200;
+}
+
+object transformer {
+	name transformer23;
+	phases "ABCN";
+	from node2;
+	to node3;
+	configuration transformer_configuration400;
+}
+
+object node {
+	name node3;
+	phases "ABCN";
+	voltage_A +2401.777+0.000j;
+	voltage_B -1200.889-2080.000j;
+	voltage_C -1200.889+2080.000j;
+	nominal_voltage 2400;
+}
+
+object transformer_configuration {
+	name AS_config;
+	connect_type SINGLE_PHASE_CENTER_TAPPED;
+	install_type POLETOP;
+	powerA_rating 75;
+	primary_voltage 2401;
+	secondary_voltage 120.000;
+	impedance 0.006+0.0136j;
+}
+
+object transformer_configuration {
+	name BS_config;
+	connect_type SINGLE_PHASE_CENTER_TAPPED;
+	install_type POLETOP;
+	powerB_rating 75;
+	primary_voltage 2401;
+	secondary_voltage 120.000;
+	impedance 0.006+0.0136j;
+}
+
+object transformer_configuration {
+	name CS_config;
+	connect_type SINGLE_PHASE_CENTER_TAPPED;
+	install_type POLETOP;
+	powerC_rating 75;
+	primary_voltage 2401;
+	secondary_voltage 120.000;
+	impedance 0.006+0.0136j;
+}
+
+object transformer {
+	name center_tap_2; 
+	phases AS; 
+	from node3; 
+	to trip_node2; 
+	configuration AS_config;
+}
+
+object transformer {
+	name center_tap_3; 
+	phases BS; 
+	from node3; 
+	to trip_node3; 
+	configuration BS_config;
+}
+
+
+object transformer {
+	name center_tap_1; 
+	phases CS; 
+	from node3; 
+	to trip_node1; 
+	configuration CS_config;
+}
+
+object triplex_node {
+	name trip_node2; 
+	phases AS; 
+	nominal_voltage 120;
+}
+
+object triplex_node {
+	name trip_node1; 
+	phases CS; 
+	nominal_voltage 120;
+}
+
+object triplex_node {
+	name trip_node3; 
+	phases BS; 
+	nominal_voltage 120;
+}
+
+
+object triplex_line_conductor {
+	name tp_line_conductor;
+	resistance 0.97;
+	geometric_mean_radius 0.0111;
+};
+
+object triplex_line_configuration {
+	name triplex_line_configuration_1;
+	conductor_1 tp_line_conductor;
+	conductor_2 tp_line_conductor;
+	conductor_N tp_line_conductor;
+	insulation_thickness 0.08;
+	diameter 0.368;
+}
+
+
+object triplex_line {
+	name trip_line2; 
+	phases AS; 
+	from trip_node2; 
+	to trip_meter2; 
+	length 0; 
+	configuration triplex_line_configuration_1;
+}
+
+object triplex_line {
+	name trip_line1; 
+	phases CS; 
+	from trip_node1; 
+	to trip_meter1; 
+	length 0; 
+	configuration triplex_line_configuration_1;
+}
+
+object triplex_line {
+	name trip_line3; 
+	phases BS; 
+	from trip_node3; 
+	to trip_meter3; 
+	length 0; 
+	configuration triplex_line_configuration_1;
+}
+
+// House 1 meter
+object triplex_meter {
+	name trip_meter1; 
+	phases CS; 
+	nominal_voltage 120;
+}
+
+
+// House 2 meter
+object triplex_meter {
+	name trip_meter2; 
+	phases AS; 
+	nominal_voltage 120;
+}
+
+// House 3 meter
+object triplex_meter {
+	name trip_meter3; 
+	phases BS; 
+	nominal_voltage 120;
+}
+
+// House 1
+object house:..20 {
+	parent trip_meter1;
+	object ZIPload {
+		base_power ZIP1base_power*random.normal(1,.25);
+		power_fraction 0.2;
+		impedance_fraction 0.3;
+		current_fraction 0.5;
+		power_pf 0.9;
+		current_pf 0.6;
+		impedance_pf 0.8;
+	};
+	
+}
+
+// House 2
+object house:..20 {
+	parent trip_meter2;
+	object ZIPload {
+		base_power ZIP1base_power*random.normal(1,.25);
+		power_fraction 0.2;
+		impedance_fraction 0.3;
+		current_fraction 0.5;
+		power_pf 0.9;
+		current_pf 0.6;
+		impedance_pf 0.8;
+	};
+	
+}
+
+// House 3
+object house:..20 {
+	parent trip_meter3;
+	object ZIPload {
+		base_power ZIP1base_power*random.normal(1,.25);
+		power_fraction 0.2;
+		impedance_fraction 0.3;
+		current_fraction 0.5;
+		power_pf 0.9;
+		current_pf 0.6;
+		impedance_pf 0.8;
+	};
+	
+}
+
+
+object collector {
+         group "class=house";
+     file evchargetestafterev.csv;
+         property "sum(total_load)";
+     interval 3600;
+     limit 24;
+};
+
+object recorder	{
+		parent node3;
+		file voltage_baseload.csv;
+		interval 150;
+		property voltage_A,voltage_B,voltage_C;
+};
+
